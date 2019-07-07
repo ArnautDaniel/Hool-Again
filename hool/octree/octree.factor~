@@ -1,7 +1,7 @@
 ! Copyright (C) 2019 Jack Lucas
 ! See http://factorcode.org/license.txt for BSD license.
 USING: assocs kernel combinators accessors locals
-math.vectors vectors sequences math combinators.short-circuit arrays fry classes.struct continuations words sequences.generalizations hool.cubes prettyprint.backend prettyprint.custom parser random ;
+math.vectors vectors sequences math combinators.short-circuit arrays fry classes.struct continuations words sequences.generalizations hool.cubes prettyprint.backend prettyprint.custom parser random sequences.deep ;
 IN: hool.octree
 
 ! Factor only provides a rectangle from what I can tell
@@ -30,7 +30,7 @@ TUPLE: octree
     swap >>geometry
     { } >>objects
     H{ } clone >>children
-    1 >>max-count
+    15 >>max-count
     t >>leaf ;
 
 ! Relative to upper left point of cube
@@ -169,8 +169,30 @@ DEFER: add-object
     ! Check if the objects can fit in the proper children
     ! based on location and size
     [ t >>age ] map parent swap >>objects drop ;
-    ! Mark the leftovers as age t
-    
+! Mark the leftovers as age t
+
+: node-cube-compare ( cube node -- bool )
+    geometry>> swap contains-cube? ; inline
+
+: leaf-trace ( cube node -- objects? )
+    2dup node-cube-compare ! Does object fit inside this leaf?
+    [ nip objects>> ] [ 2drop { } ] if ;
+
+DEFER: trace-tree 
+: node-children-trace ( node cube -- objects? )
+    [ children>> values ] dip
+    [ trace-tree ] curry
+    map flatten ;
+
+: node-trace ( cube node -- objects? )
+    2dup node-cube-compare ! Does object fit inside this node?
+    [ swap [ node-children-trace ] curry [ objects>> ] swap
+      bi append ]
+    [ 2drop { } ] if ;
+
+! Trace a tree for all nodes holding a cube
+: trace-tree ( node cube -- nodelst )
+    swap dup leaf>> [ leaf-trace ] [ node-trace ] if ;
 
 : split-leaf ( value point leaf -- )
     add-subnodes
@@ -249,15 +271,18 @@ M: octree clear-assoc ( assoc -- )
     drop ;
 
 ! Utilities for testing ---------------------------------
+: octree-cube ( num -- octree )
+    3 swap <repetition> { 0 0 0 } swap
+    <cube> <octree> ;
 
 : items ( -- items )
     { "pizza" "matzo" "olive" "grapes" "peanuts" "mochi" "mocha" } ;
 
 : locs ( -- locs )
-    { 640 640 640 } [ random ] map ;
+    { 64000 64000 64000 } [ random ] map ;
 
 : dim ( -- dim )
-    { 320 320 320 } [ random ] map ;
+    { 500 500 500 } [ random ] map ;
 
 : random-test-item ( -- value cube )
     items random locs dim <cube> ;

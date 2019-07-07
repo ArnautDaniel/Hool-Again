@@ -15,6 +15,10 @@ TUPLE: octree-object cube obj { age initial: f } { parent initial: f } ;
 : <octree-object> ( obj pos -- obj )
     swap f f octree-object boa ;
 
+GENERIC: obj>insert ( obj -- value cube )
+M: octree-object obj>insert
+    [ obj>> ] [ cube>> ] bi ;
+
 TUPLE: octree
     { geometry cube }
     { objects initial: { } }
@@ -266,8 +270,8 @@ M: octree pprint* [ \ OCTREE: [
 
 M: octree clear-assoc ( assoc -- )
     t >>leaf
-    f >>geometry
-    f >>objects
+    { } >>objects
+    H{ } clone >>children
     drop ;
 
 ! Utilities for testing ---------------------------------

@@ -1,7 +1,7 @@
 ! Copyright (C) 2019 Jack Lucas
 ! See http://factorcode.org/license.txt for BSD license.
 USING: assocs kernel combinators accessors locals
-math.vectors vectors sequences math combinators.short-circuit arrays fry classes.struct continuations words sequences.generalizations ;
+math.vectors vectors sequences math combinators.short-circuit arrays fry classes.struct continuations words sequences.generalizations parser prettyprint.custom prettyprint.backend ;
 IN: hool.cubes
 
 ! Cube Helpers
@@ -44,4 +44,8 @@ M: cube contains-cube? ( cube1 cube2 -- ? )
     [ vsupremum ] [ vinfimum ] bi [ nip ] [ v- ] 2bi <cube> ;
 
 
-    
+SYNTAX: CUBE: scan-object scan-object <cube> suffix! ;
+M: cube pprint*
+    [ \ CUBE: [
+          [ loc>> ] [ dim>> ] bi [ pprint* ] bi@
+      ] pprint-prefix ] check-recursion ;
