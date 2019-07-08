@@ -16,15 +16,13 @@ IN: hool.boids.demo
 
 : add-boid ( world -- world )
     dup objects>> generate-boid suffix
-    >>objects ;
+    >>objects ; 
 
-: main ( --  )
+: main ( -- world )
     make-window
-    { } generate-boid suffix
-    <hool-world>
+    { 0 0 0 } { 640 640 640 } { } <hool-world>
     [ render-world-objs update-world-objs update-world
-      add-boid
-      window-should-close not ] loop
-    close-window drop ;
+      add-boid clear-bounds window-should-close not ] loop
+    close-window ;
 
-MAIN: main 
+

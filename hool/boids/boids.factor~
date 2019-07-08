@@ -20,7 +20,7 @@ M: boid pprint*
 
 GENERIC: change-direction ( vector-mod object -- ) 
 GENERIC: render-object ( object -- )
-GENERIC: update ( object -- )
+GENERIC: update-object ( object -- )
 GENERIC: reset-direction ( object -- )
 
 M: boid change-direction 
@@ -30,10 +30,12 @@ M: boid reset-direction
     { 0 0 0 } >>speed drop ;
 
 M: boid render-object
-    [ pos>> loc>> ] [ pos>> dim>> ] bi BLACK draw-cube-v ;
+    [ pos>> loc>> >RayVector3 ] [ pos>> dim>> >RayVector3 ] bi BLACK draw-cube-v ;
 
-M: boid update
+M: boid update-object
     dup [ pos>> loc>> ] keep
     speed>> v+ [ pos>> ] dip
     >>loc drop ;
    
+M: boid obj>insert
+    [ pos>> ] keep swap ;
