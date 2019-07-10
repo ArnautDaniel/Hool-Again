@@ -1,7 +1,7 @@
 ! Copyright (C) 2019 Jack Lucas
 ! See http://factorcode.org/license.txt for BSD license.
 USING: assocs kernel combinators accessors locals
-math.vectors vectors sequences math combinators.short-circuit arrays fry classes.struct continuations words sequences.generalizations parser prettyprint.custom prettyprint.backend ;
+math.vectors vectors sequences math combinators.short-circuit arrays fry classes.struct continuations words sequences.generalizations parser prettyprint.custom prettyprint.backend raylib.ffi ;
 IN: hool.cubes
 
 ! Cube Helpers
@@ -43,6 +43,8 @@ M: cube contains-cube? ( cube1 cube2 -- ? )
 : cube-containing ( points -- cube )
     [ vsupremum ] [ vinfimum ] bi [ nip ] [ v- ] 2bi <cube> ;
 
+: >RayVector3 ( cube-slot -- Vector3 )
+    [ Vector3 <struct-boa> ] with-datastack first ;
 
 SYNTAX: CUBE: scan-object scan-object <cube> suffix! ;
 M: cube pprint*

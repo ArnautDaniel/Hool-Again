@@ -1,7 +1,7 @@
 ! Copyright (C) 2019 Jack Lucas
 ! See http://factorcode.org/license.txt for BSD license.
 USING: assocs kernel combinators accessors locals
-math.vectors vectors sequences math combinators.short-circuit arrays fry classes.struct continuations words sequences.generalizations hool.cubes prettyprint.backend prettyprint.custom parser random sequences.deep ;
+math.vectors vectors sequences math combinators.short-circuit arrays fry classes.struct continuations words sequences.generalizations hool.cubes random sequences.deep ;
 IN: hool.octree
 
 ! Factor only provides a rectangle from what I can tell
@@ -255,18 +255,6 @@ PRIVATE>
 
 INSTANCE: octree assoc
 M: octree set-at ( value key assoc -- ) insert ;
-
-SYNTAX: OCTOBJ: scan-object scan-object <octree-object> suffix! ;
-SYNTAX: OCTREE: scan-object scan-object <cube> <octree> suffix! ;
-
-M: octree-object pprint*
-    [ \ OCTOBJ: [
-          dup cube>> pprint*
-          obj>> pprint* ] pprint-prefix ] check-recursion ;
-
-M: octree pprint* [ \ OCTREE: [
-                        dup geometry>> [ loc>> ] [ dim>> ] bi [ pprint* ] bi@
-                        objects>> pprint* ] pprint-prefix ] check-recursion ;
 
 M: octree clear-assoc ( assoc -- )
     t >>leaf

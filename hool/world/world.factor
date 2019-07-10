@@ -1,7 +1,7 @@
 ! Copyright (C) 2019 Jack Lucas
 ! See http://factorcode.org/license.txt for BSD license.
 USING: hool.octree assocs kernel combinators accessors locals
-math.vectors vectors sequences math combinators.short-circuit arrays fry classes.struct continuations words sequences.generalizations hool.cubes prettyprint.backend prettyprint.custom parser random sequences.deep raylib.ffi alien.enums namespaces hool.boids ;
+math.vectors vectors sequences math combinators.short-circuit arrays fry classes.struct continuations words sequences.generalizations hool.cubes random sequences.deep raylib.ffi alien.enums namespaces hool.boids ;
 
 IN: hool.world
 
@@ -15,14 +15,14 @@ TUPLE: hool-world
     Vector3 <struct-boa> ;
 
 : setup-camera ( -- camera )
-    1000.0 0.0 0.0  <ray-vector3>
+    10 10 0  <ray-vector3>
     0.0 0.0 0.0  <ray-vector3>
     0.0 1.0 0.0 <ray-vector3>
-    45.0 CAMERA_PERSPECTIVE enum>number
+    100.0 CAMERA_PERSPECTIVE enum>number
     Camera3D <struct-boa> ;
 
 : <hool-world> ( objects -- world )
-    { 0 0 0 } { 64000 64000 64000 } <cube> <octree>
+    { 0 0 0 } { 640 640 640 } <cube> <octree>
     setup-camera hool-world boa ;
 
 GENERIC: obj>octree ( world -- world )
@@ -31,6 +31,42 @@ GENERIC: render-world-objs ( world -- world )
 GENERIC: update-world-objs ( world -- world )
 GENERIC: update-world ( world -- world )
 GENERIC: clear-bounds ( world -- world )
+GENERIC: world-update-camera ( world -- world )
+GENERIC: world-set-camera-mode ( world -- world )
+GENERIC: world-add-object ( obj world -- world )
+GENERIC: reset-world ( world -- world )
+GENERIC: reset? ( world -- world )
+GENERIC: screenshot? ( world -- world )
+GENERIC: within-bounds ( world -- world )
+GENERIC: draw-master-octree ( world -- world )
+
+M: hool-world world-update-camera
+    dup camera>> update-camera ;
+
+M: hool-world world-set-camera-mode
+    dup camera>> CAMERA_FIRST_PERSON enum>number
+    set-camera-mode ;
+
+M: hool-world world-add-object
+    dup objects>> length 5 >=
+    [ nip ]
+    [ swap over objects>>
+      swap suffix >>objects ] if ;
+
+M: hool-world screenshot?
+    KEY_ENTER enum>number
+    is-key-pressed
+    [ "test.png" take-screenshot ] when ;
+
+M: hool-world reset-world
+    { } >>objects
+    dup octree>> clear-assoc ;
+
+M: hool-world within-bounds
+    dup octree>> geometry>> [ swap pos>> contains-cube? ] curry
+    over objects>> swap reject
+    [ reverse-direction ] each ;
+
 M: hool-world obj>octree
     dup objects>> 
     over octree>> [ [ obj>insert ] dip set-at ] curry
@@ -39,15 +75,25 @@ M: hool-world obj>octree
 M: hool-world clear-world
     dup octree>> clear-assoc ;
 
-
 : clear-window ( -- )
-    RAYWHITE clear-background ;
+    BLACK clear-background ;
+
+M: hool-world reset?
+    KEY_SPACE enum>number is-key-down
+    [ reset-world ] when ;
+
+M: hool-world draw-master-octree
+    dup octree>> geometry>>
+    [ loc>> >RayVector3 ] [ dim>> >RayVector3 ] bi
+    RAYWHITE draw-cube-wires-v ;
 
 M: hool-world render-world-objs
     dup [ camera>> ] keep swap
     begin-drawing
     begin-mode-3d
     clear-window
+    draw-master-octree
+    10 10.0 draw-grid
     objects>> [ render-object ] each
     end-drawing
     end-mode-3d ;

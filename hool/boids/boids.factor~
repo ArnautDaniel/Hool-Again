@@ -6,10 +6,10 @@ math.vectors vectors sequences math combinators.short-circuit arrays fry classes
 IN: hool.boids
 
 TUPLE: boid
-    pos speed ;
+    pos speed size ;
 
 : <boid> ( cube speed -- boid )
-    boid boa ;
+    30 random boid boa ;
 
 SYNTAX: BOID: scan-object scan-object <boid> suffix! ;
 
@@ -20,20 +20,31 @@ M: boid pprint*
 
 GENERIC: change-direction ( vector-mod object -- ) 
 GENERIC: render-object ( object -- )
-GENERIC: update ( object -- )
+GENERIC: update-object ( object -- )
 GENERIC: reset-direction ( object -- )
-
+GENERIC: reverse-direction ( object -- )
 M: boid change-direction 
     swap [ dup speed>> ] dip v+ >>speed drop  ;
 
 M: boid reset-direction
     { 0 0 0 } >>speed drop ;
 
-M: boid render-object
-    [ pos>> loc>> ] [ pos>> dim>> ] bi BLACK draw-cube-v ;
+M: boid reverse-direction
+    { -1 -1 -1 } [ dup speed>> ] dip v* >>speed drop ;
 
-M: boid update
+: colors ( -- colors )
+    { RAYWHITE } ;
+
+: select-color ( -- color )
+    colors random execute( -- Color ) ;
+
+M: boid render-object
+    [ pos>> loc>> >RayVector3 ] [ size>> ] bi select-color draw-sphere ;
+
+M: boid update-object
     dup [ pos>> loc>> ] keep
     speed>> v+ [ pos>> ] dip
     >>loc drop ;
    
+M: boid obj>insert
+    [ pos>> ] keep swap ;
