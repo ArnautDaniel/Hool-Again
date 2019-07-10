@@ -14,6 +14,7 @@ IN: hool.boids.demo
     { 100 100 100  } [ random ] map <cube>
     { { -10.0 10.0 } { -10.0 10.0 } { -10.0 10.0 } } [ [ [a,b] random ] with-datastack first ] map  <boid> ;
 
+<<<<<<< HEAD
 : run-world ( world -- world )
     world-update-camera render-world-objs
     update-world-objs generate-boid swap world-add-object
@@ -25,3 +26,17 @@ IN: hool.boids.demo
     close-window drop ;
 
 MAIN: main
+=======
+: add-boid ( world -- world )
+    dup objects>> generate-boid suffix
+    >>objects ; 
+
+: main ( -- world )
+    make-window
+    { 0 0 0 } { 640 640 640 } { } <hool-world>
+    [ render-world-objs update-world-objs update-world
+      add-boid clear-bounds window-should-close not ] loop
+    close-window ;
+
+
+>>>>>>> b1c7a408ae3ba75681eb95809bac9c259fd79e34
