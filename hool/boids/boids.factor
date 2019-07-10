@@ -17,7 +17,8 @@ GENERIC: update-object ( object -- )
 GENERIC: reset-direction ( object -- )
 GENERIC: reverse-direction ( object -- )
 M: boid change-direction 
-    swap [ dup speed>> ] dip v+ >>speed drop  ;
+    swap [ dup speed>> ] dip v
++ >>speed drop  ;
 
 M: boid reset-direction
     { 0 0 0 } >>speed drop ;

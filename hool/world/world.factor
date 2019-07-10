@@ -6,15 +6,14 @@ math.vectors vectors sequences math combinators.short-circuit arrays fry classes
 IN: hool.world
 
 TUPLE: hool-world
-    objects
-    octree
-    camera
-    ;
+    objects octree camera ;
 
 : <ray-vector3> ( x y z -- vector3 )
     Vector3 <struct-boa> ;
 
+! Make cameras better
 : setup-camera ( -- camera )
+<<<<<<< HEAD
     10 10 0  <ray-vector3>
     0.0 0.0 0.0  <ray-vector3>
     0.0 1.0 0.0 <ray-vector3>
@@ -24,6 +23,20 @@ TUPLE: hool-world
 : <hool-world> ( objects -- world )
     { 0 0 0 } { 640 640 640 } <cube> <octree>
     setup-camera hool-world boa ;
+=======
+    1000.0 0.0 100.0  <ray-vector3>
+    0.0 0.0 0.0  <ray-vector3>
+    0.0 1.0 0.0 <ray-vector3>
+    20.0 CAMERA_PERSPECTIVE enum>number
+    Camera3D <struct-boa> ;
+
+: <hool-world> ( Vector3 Vector3 objects -- world )
+    [ <cube> <octree> ] dip
+    hool-world new
+    swap >>objects
+    swap >>octree
+    setup-camera >>camera ;
+>>>>>>> b1c7a408ae3ba75681eb95809bac9c259fd79e34
 
 GENERIC: obj>octree ( world -- world )
 GENERIC: clear-world ( world -- world )
@@ -31,6 +44,7 @@ GENERIC: render-world-objs ( world -- world )
 GENERIC: update-world-objs ( world -- world )
 GENERIC: update-world ( world -- world )
 GENERIC: clear-bounds ( world -- world )
+<<<<<<< HEAD
 GENERIC: world-update-camera ( world -- world )
 GENERIC: world-set-camera-mode ( world -- world )
 GENERIC: world-add-object ( obj world -- world )
@@ -67,6 +81,11 @@ M: hool-world within-bounds
     over objects>> swap reject
     [ reverse-direction ] each ;
 
+=======
+
+! Currently rebuilding the octree every loop
+! That's bad.  Implement partial-updates and pruning
+>>>>>>> b1c7a408ae3ba75681eb95809bac9c259fd79e34
 M: hool-world obj>octree
     dup objects>> 
     over octree>> [ [ obj>insert ] dip set-at ] curry
@@ -95,8 +114,8 @@ M: hool-world render-world-objs
     draw-master-octree
     10 10.0 draw-grid
     objects>> [ render-object ] each
-    end-drawing
-    end-mode-3d ;
+    end-mode-3d
+    end-drawing ;
 
 M: hool-world update-world-objs
     dup objects>> [ update-object ] each ;
@@ -107,5 +126,5 @@ M: hool-world update-world
 
 M: hool-world clear-bounds
     dup [ objects>> ] [ octree>> ]
-    bi geometry>> [ swap contains-cube? ] curry
+    bi geometry>> [ swap pos>> contains-cube? ] curry
     filter >>objects ;
